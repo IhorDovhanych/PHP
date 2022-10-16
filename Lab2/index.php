@@ -15,9 +15,9 @@ function getSimpleData():array {
         }
         else{
         $dict[] = [
-            'id' => (int)$lineArr[0],
+            'id' => (int)$lineArr[0] or die('Error value'),
             'name' => $lineArr[1],
-            'staffNumber' => (int)$lineArr[2],
+            'staffNumber' => (int)$lineArr[2] or die('Error value'),
             'branch' => $lineArr[3],
             'address' => $lineArr[4]
         ];
