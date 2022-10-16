@@ -76,8 +76,10 @@ function validateFactoryData($data):bool {
 }
 
 session_start();
-//$_SESSION['factory'] = null;
 
+
+//$_SESSION['factory'] = null;
+// ^^^^^ uncomment for update list with new arrayData.txt data
 $fourthPoint = $_GET['fourthPoint'];
 
 if (isset($_SESSION['factory'])) {
