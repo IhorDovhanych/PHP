@@ -4,6 +4,16 @@ function getSimpleData():array {
     $dict = [];
     foreach ($lines as $line){
         $lineArr = explode(' ', $line);
+        if(count($lineArr) != 5){
+            $dict[] = [
+                'id' => null,
+                'name' => null,
+                'staffNumber' => null,
+                'branch' => null,
+                'address' => null
+            ];
+        }
+        else{
         $dict[] = [
             'id' => (int)$lineArr[0],
             'name' => $lineArr[1],
@@ -11,6 +21,7 @@ function getSimpleData():array {
             'branch' => $lineArr[3],
             'address' => $lineArr[4]
         ];
+        }
     }
 
     return $dict;
