@@ -1,32 +1,26 @@
 <?php
+
 function getSimpleData():array {
-    $lines = file('./arrayData.txt');
+    $lines = file('./arrayData.txt', FILE_SKIP_EMPTY_LINES);
     $dict = [];
     foreach ($lines as $line){
         $lineArr = explode(' ', $line);
-        if(count($lineArr) != 5){
-            $dict[] = [
-                'id' => null,
-                'name' => null,
-                'staffNumber' => null,
-                'branch' => null,
-                'address' => null
-            ];
-        }
-        else{
+
         $dict[] = [
-            'id' => (int)$lineArr[0] or die('Error value'),
+            'id' => (int)$lineArr[0],
             'name' => $lineArr[1],
-            'staffNumber' => (int)$lineArr[2] or die('Error value'),
+            'staffNumber' => (int)$lineArr[2],
             'branch' => $lineArr[3],
             'address' => $lineArr[4]
         ];
-        }
-    }
 
+    }
     return $dict;
 }
-
+function saveDataInFile($data,$factories, $id){
+    $dataStr = getUniqueId($factories, $id).' '.$data['name'].' '.$data['staff'].' '.$data["branch"].' '.$data["address"];
+    file_put_contents('./arrayData.txt', "\n$dataStr", FILE_APPEND);
+}
 function getUniqueId(array $factories, int $proposedId) {
     if (count($factories) == 0) {
         return $proposedId;
@@ -64,7 +58,7 @@ function fullfillFactoryData($factories, $data):array {
     ];
 }
 
-function validateFactoryData($data):bool {
+function validateFactoryData($data,$factory):bool {
     if (empty($data["id"])
         || empty($data["name"])
         || empty($data["staff"])
@@ -72,26 +66,36 @@ function validateFactoryData($data):bool {
         || empty($data["address"])) {
         return false;
     }
+    if (
+        $data['name'] == $factory['name'] &&
+        $data['staff'] == (string)$factory['staffNumber'] &&
+        $data['branch'] == $factory['branch'] &&
+        $data['address'] == $factory['address']){
+
+        return false;
+    }
+
     return true;
 }
 
 session_start();
 
 
-//$_SESSION['factory'] = null;
+$_SESSION['factory'] = null;
 // ^^^^^ uncomment for update list with new arrayData.txt data
 $fourthPoint = $_GET['fourthPoint'];
-
 if (isset($_SESSION['factory'])) {
     $factory = $_SESSION['factory'];
 } else {
     $factory = getSimpleData();
 }
 
+
 if (!empty($_GET["edit"])) {
-    if (validateFactoryData($_GET)) {
+    if (validateFactoryData($_GET,end($factory))) {
         for ($i = 0; $i < count($factory); $i++) {
             if ($_GET["edit"] == $factory[$i]["id"]) {
+                saveDataInFile($_GET,$factory,$_GET['id']);
                 $factory[$i] = fullfillFactoryData($factory, $_GET);
                 break;
             }
@@ -100,7 +104,8 @@ if (!empty($_GET["edit"])) {
         //TODO: Error handling
     }
 } elseif (array_key_exists('id', $_GET)) {
-    if (validateFactoryData($_GET)) {
+    if (validateFactoryData($_GET,end($factory))) {
+        saveDataInFile($_GET,$factory,$_GET['id']);
         $factory[] = fullfillFactoryData($factory, $_GET);
     } else {
         //TODO: Error handling
@@ -108,8 +113,6 @@ if (!empty($_GET["edit"])) {
 }
 
 $_SESSION["factory"] = $factory;
-
-
 
 echo "<h2>Таблиця всіх значень</h2>";
 echo "<table border='1px'>";
