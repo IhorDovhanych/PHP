@@ -18,8 +18,22 @@ function getSimpleData():array {
     return $dict;
 }
 function saveDataInFile($data,$factories, $id){
-    $dataStr = getUniqueId($factories, $id).' '.$data['name'].' '.$data['staff'].' '.$data["branch"].' '.$data["address"];
-    file_put_contents('./arrayData.txt', "\n$dataStr", FILE_APPEND);
+    $dataStr = getUniqueId($factories, $id).' '.$data['name'].' '.$data['staff'].' '.$data['branch'].' '.$data['address']."\n";
+    file_put_contents('./arrayData.txt', "$dataStr", FILE_APPEND);
+}
+function saveDataInFileAfterSave($data,$factories,$id,$edit){
+    $dataStr = '';
+    for ($i = 0; $i < count($factories); $i++){
+
+        if($factories[$i]['id'] == $edit){
+            $factories[$i] = fullFillFactoryData($factories, $data);
+            var_dump($factories[$i]);
+            $dataStr .= $factories[$i]['id'].' '.$factories[$i]['name'].' '.$factories[$i]['staffNumber'].' '.$factories[$i]['branch'].' '.$factories[$i]['address']."\n";
+        }
+        else{
+        $dataStr .= $factories[$i]['id'].' '.$factories[$i]['name'].' '.$factories[$i]['staffNumber'].' '.$factories[$i]['branch'].' '.$factories[$i]['address'];
+    }}
+    file_put_contents('./arrayData.txt', "$dataStr");
 }
 function getUniqueId(array $factories, int $proposedId) {
     if (count($factories) == 0) {
@@ -48,7 +62,7 @@ function sortByStaffNumberInBranch(int $x, int $y, string $branch, $arr) {
     return $newArr;
 }
 
-function fullfillFactoryData($factories, $data):array {
+function fullFillFactoryData($factories, $data):array {
     return [
         "id" => getUniqueId($factories, $data['id']),
         "name" => $data["name"],
@@ -78,7 +92,7 @@ function validateFactoryData($data,$factory):bool {
     return true;
 }
 
-session_start();
+
 
 
 $_SESSION['factory'] = null;
@@ -95,8 +109,8 @@ if (!empty($_GET["edit"])) {
     if (validateFactoryData($_GET,end($factory))) {
         for ($i = 0; $i < count($factory); $i++) {
             if ($_GET["edit"] == $factory[$i]["id"]) {
-                saveDataInFile($_GET,$factory,$_GET['id']);
-                $factory[$i] = fullfillFactoryData($factory, $_GET);
+                saveDataInFileAfterSave($_GET,$factory,$_GET['id'],$_GET['edit']);
+                $factory[$i] = fullFillFactoryData($factory, $_GET);
                 break;
             }
         }
@@ -106,7 +120,7 @@ if (!empty($_GET["edit"])) {
 } elseif (array_key_exists('id', $_GET)) {
     if (validateFactoryData($_GET,end($factory))) {
         saveDataInFile($_GET,$factory,$_GET['id']);
-        $factory[] = fullfillFactoryData($factory, $_GET);
+        $factory[] = fullFillFactoryData($factory, $_GET);
     } else {
         //TODO: Error handling
     }
