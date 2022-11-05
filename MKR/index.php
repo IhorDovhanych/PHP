@@ -6,63 +6,80 @@
 його даних.
  * */
 
-class Goods{
-    public int $id, $price;
-    public string $name,$country;
-    public function __construct(int $id, string $name, string $country, int $price){
-        $this->id = $id;
-        $this->name = $name;
-        $this->country = $country;
-        $this->price = $price;
+class Repository
+{
+    public $dbh;
+    public function __construct($dbh){
+        $this->dbh = $dbh;
     }
-    public function getId(){
-        return $this->id;
+    public function addGoods(string $userName, string $userCountry, int $userPrice ){
+        $this->dbh->query('INSERT INTO goodsTable(name, country, price) VALUES (' .
+            "'" . $userName . "', " .
+            "'" . $userCountry . "', " .
+            "'" . $userPrice . "')"
+        );
     }
-    public function getName(){
-        return $this->name;
+    public function readGoods()
+    {
+        return $this->dbh->query('SELECT * FROM goodsTable')->fetchAll();
     }
-    public function getCountry(){
-        return $this->country;
+    public function updateGoods(int $userId, string $userName, string $userCountry, int $userPrice){
+        $this->dbh->query('UPDATE factoriesTable SET ' .
+            'name = ' . $userName . ', ' .
+            'country = ' . $userCountry . ', ' .
+            'price = ' . $userPrice . ', ' .
+            'WHERE id = ' . $userId);
     }
-    public function getPrice(){
-        return $this->price;
-    }
-}
-class GoodsCollection{
-    public array $goodList;
-    public function __construct($goodsList = []){
-        $this->goodsList = $goodsList;
-    }
-    public function getGoodsList(){
-        return $this->goodsList;
-    }
-    public function AddGoods(Goods $goods){
-        $this->goodList[] = $goods;
-    }
-}
 
-$goods1 = new Goods(1,'condoms','Brazil','100');
-$goods2 = new Goods(2,'cock','USA','30');
-$arr = [$goods1, $goods2];
-$goodsList = new GoodsCollection($arr);
-$count = count($goodsList->getGoodsList());
-function DeleteGoods($arr, $id){
-    return [
-        array_splice($arr,$id)
-    ];
-}
-
-function ShowData($arr,$delete){
-    for($i = 0; $i < count($arr); $i++){
-        echo $arr[$i]->getId() . ", " .
-            $arr[$i]->getName() . ", " .
-            $arr[$i]->getCountry() . ", " .
-            $arr[$i]->getPrice() . ", " .
-            "<button onclick='$delete'>Delete</button>";
+    public function deleteGoods($id){
+        return $this->dbh->query("DELETE FROM goodsTable WHERE id = " . $id);
     }
 }
-
-ShowData($goodsList->getGoodsList(), DeleteGoods($goodsList->getGoodsList(), 1));
+$dbh = new PDO('mysql:host=localhost;dbname=Goods', 'root', '');
+$goods = new Repository($dbh);
+?>
+<table border="1px solid">
+    <tr>
+        <th>id</th>
+        <th>name</th>
+        <th>country</th>
+        <th>price</th>
+        <th>operation</th>
+    </tr>
+<?php
+//$goods->addGoods("Bread", "Brazil", 40);
+//for($i = 0; $i < count($goods->readGoods()); $i++){
+//    $id = $goods->readGoods()[$i]['id'];
+//    echo "<form method='post'> <tr>";
+//    echo '<td>' . $id . '</td>';
+//    echo '<td>' . $goods->readGoods()[$i]['name'] . '</td>';
+//    echo '<td>' . $goods->readGoods()[$i]['country'] . '</td>';
+//    echo '<td>' . $goods->readGoods()[$i]['price'] . '</td>';
+//    echo '<td>' . "<input type='submit' name='btn$id' id='btn$id' value='DELETE$id'/>" . '</td>';
+//    echo "</tr> </form>";
+//    foreach($goods->readGoods() as $value){
+//        if(array_key_exists("btn$id", $_POST)){
+//            $goods->deleteGoods($id);
+//        }
+//    }
+//}
+foreach ($goods->readGoods() as $value){
+    $id = $value['id'];
+    if(array_key_exists("btn$id", $_POST)){
+        $goods->deleteGoods($id);
+    }
+}
+foreach ($goods->readGoods() as $value){
+    $id = $value['id'];
+    echo "<form method='post'> <tr>";
+    echo '<td>' . $id . '</td>';
+    echo '<td>' . $value['name'] . '</td>';
+    echo '<td>' . $value['country'] . '</td>';
+    echo '<td>' . $value['price'] . '</td>';
+    echo '<td>' . "<input type='submit' name='btn$id' id='btn$id' value='DELETE$id'/>" . '</td>';
+    echo "</tr> </form>";
+}
 
 ?>
+</table>
 
