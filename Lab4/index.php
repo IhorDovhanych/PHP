@@ -33,5 +33,6 @@ $saveFactoryCollection = new Repository($dbh);
 
 //$saveFactoryCollection->deleteFactory(2);
 var_dump($saveFactoryCollection->readFactories());
+$saveFactoryCollection->updateFactory(3,"SevlushNet", 100, "provider", "Uzhorod");
 //$saveFactoryCollection->createNewFile('ok');
 //$saveFactoryCollection->storeDataToFile($factoryCollection,'ok');
