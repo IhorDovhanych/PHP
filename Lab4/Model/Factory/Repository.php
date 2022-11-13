@@ -25,7 +25,7 @@ class Repository
     }
     public function updateFactory(int $userId, string $userName, int $userStaffNumber, string $userBranch, string $userAddress){
         $this->dbh->query('UPDATE factoriesTable SET ' .
-            'name = "' . $userName . '", ' .
+            'name = ' . $userName . ', ' .
             'staffNumber = ' . $userStaffNumber . ', ' .
             'branch = "' . $userBranch . '", ' .
             'address = "' . $userAddress . '"' .
